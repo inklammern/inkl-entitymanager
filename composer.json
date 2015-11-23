@@ -8,7 +8,10 @@
 	}],
 	"require": {
 		"php": ">= 5.5",
-		"doctrine/dbal": "^2.5@stable"
+		"doctrine/dbal": "^2.5@stable",
+		"zendframework/zend-hydrator": "^2.0@stable",
+		"zendframework/zend-filter": "^2.5@stable",
+		"zendframework/zend-servicemanager": "^2.6@stable"
 	},
 	"autoload": {
 		"psr-4": {
