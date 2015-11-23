@@ -4,11 +4,12 @@ namespace Inkl\EntityManager\Repository;
 
 use Inkl\EntityManager\Entity\EntityInterface;
 use Inkl\EntityManager\Factory\FactoryInterface;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Connection;
 use Zend\Hydrator\HydratorInterface;
 
 
-abstract class AbstractRepository implements RepositoryInterface {
+abstract class AbstractRepository implements RepositoryInterface
+{
 
 	/** @var Connection */
 	private $connection;
@@ -29,7 +30,8 @@ abstract class AbstractRepository implements RepositoryInterface {
 	 * @param $mainTable
 	 * @param $primaryKey
 	 */
-	public function __construct(Connection $connection, FactoryInterface $factory, HydratorInterface $hydrator, $mainTable, $primaryKey) {
+	public function __construct(Connection $connection, FactoryInterface $factory, HydratorInterface $hydrator, $mainTable, $primaryKey)
+	{
 		$this->connection = $connection;
 		$this->factory = $factory;
 		$this->hydrator = $hydrator;
@@ -38,37 +40,44 @@ abstract class AbstractRepository implements RepositoryInterface {
 	}
 
 
-	public function getMainTable() {
+	public function getMainTable()
+	{
 		return $this->mainTable;
 	}
 
 
-	public function getPrimaryKey() {
+	public function getPrimaryKey()
+	{
 		return $this->primaryKey;
 	}
 
 
-	public function getConnection() {
+	public function getConnection()
+	{
 		return $this->connection;
 	}
 
 
-	public function getFactory() {
+	public function getFactory()
+	{
 		return $this->factory;
 	}
 
 
-	public function getHydrator() {
+	public function getHydrator()
+	{
 		return $this->hydrator;
 	}
 
 
-	public function create() {
+	public function create()
+	{
 		return $this->factory->create();
 	}
 
 
-	public function load($id) {
+	public function load($id)
+	{
 
 		$primaryKey = $this->getPrimaryKey();
 
@@ -80,7 +89,8 @@ abstract class AbstractRepository implements RepositoryInterface {
 
 		$entity = $this->create();
 
-		if ($data = $query->execute()->fetch()) {
+		if ($data = $query->execute()->fetch())
+		{
 			$this->hydrator->hydrate($data, $entity);
 		}
 
@@ -88,7 +98,8 @@ abstract class AbstractRepository implements RepositoryInterface {
 	}
 
 
-	public function loadByField($value, $field) {
+	public function loadByField($value, $field)
+	{
 
 		$query = $this->connection->createQueryBuilder()
 			->select('*')
@@ -98,7 +109,8 @@ abstract class AbstractRepository implements RepositoryInterface {
 
 		$entity = $this->create();
 
-		if ($data = $query->execute()->fetch()) {
+		if ($data = $query->execute()->fetch())
+		{
 			$this->hydrator->hydrate($data, $entity);
 		}
 
@@ -106,17 +118,19 @@ abstract class AbstractRepository implements RepositoryInterface {
 	}
 
 
-	public function save(EntityInterface $entity) {
-
+	public function save(EntityInterface $entity)
+	{
 		$primaryKey = $this->getPrimaryKey();
 		$data = $this->hydrator->extract($entity);
 
-		if (isset($data[$primaryKey]) && !empty($data[$primaryKey])) {
+		if (isset($data[$primaryKey]) && !empty($data[$primaryKey]))
+		{
 
 			// update
 			$this->connection->update($this->getMainTable(), $data, [$primaryKey => $data[$primaryKey]]);
 
-		} else {
+		} else
+		{
 
 			// insert
 			$this->connection->insert($this->getMainTable(), $data);
@@ -131,12 +145,20 @@ abstract class AbstractRepository implements RepositoryInterface {
 	}
 
 
-	public function delete(EntityInterface $entity) {
+	public function getLastInsertId()
+	{
+		return $this->connection->lastInsertId();
+	}
+
+
+	public function delete(EntityInterface $entity)
+	{
 
 		$primaryKey = $this->getPrimaryKey();
 		$data = $this->hydrator->extract($entity);
 
-		if (isset($data[$primaryKey]) && $data[$primaryKey] > 0) {
+		if (isset($data[$primaryKey]) && $data[$primaryKey] > 0)
+		{
 			$this->connection->delete($this->getMainTable(), [$primaryKey => $data[$primaryKey]]);
 
 			return true;
