@@ -2,6 +2,7 @@
 
 namespace Inkl\EntityManager\Repository;
 
+use Inkl\EntityManager\Collection\CollectionInterface;
 use Inkl\EntityManager\Entity\EntityInterface;
 use Inkl\EntityManager\Factory\FactoryInterface;
 use Zend\Hydrator\HydratorInterface;
@@ -35,6 +36,12 @@ interface RepositoryInterface {
 	 * @return bool
 	 */
 	public function save(EntityInterface $entity);
+
+
+	/**
+	 * @return CollectionInterface
+	 */
+	public function find();
 
 
 	/**

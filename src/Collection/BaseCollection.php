@@ -5,7 +5,7 @@ namespace Inkl\EntityManager\Collection;
 use Inkl\EntityManager\Repository\RepositoryInterface;
 use Doctrine\DBAL\Query\QueryBuilder;
 
-abstract class AbstractCollection implements \IteratorAggregate {
+class BaseCollection implements CollectionInterface, \IteratorAggregate {
 
 	protected $items = [];
 
@@ -28,25 +28,39 @@ abstract class AbstractCollection implements \IteratorAggregate {
 	protected function initQueryBuilder() {
 
 		$this->queryBuilder = $this->repository->getConnection()->createQueryBuilder()
-				->select('*')
-				->from($this->repository->getMainTable(), 'main_table');
+			->select('*')
+			->from($this->repository->getMainTable(), 'main_table');
 	}
 
 
-	public function load() {
-
+	protected function loadData()
+	{
 		$stmt = $this->queryBuilder->execute();
 
 		$this->items = [];
-		while ($data = $stmt->fetch()) {
+		while ($data = $stmt->fetch())
+		{
 			$this->items[] = $this->repository->getHydrator()->hydrate($data, $this->repository->getFactory()->create());
 		}
-
 	}
 
 
-	public function getCount() {
+	public function getQueryBuilder()
+	{
+		return $this->queryBuilder;
+	}
 
+
+	public function getFirst()
+	{
+		$this->loadData();
+
+		return current($this->items);
+	}
+
+
+	public function getCount()
+	{
 		$queryBuilder = clone $this->queryBuilder;
 
 		$stmt = $queryBuilder->select('COUNT(*)')->execute();
@@ -55,23 +69,18 @@ abstract class AbstractCollection implements \IteratorAggregate {
 	}
 
 
-	public function getIterator() {
-
-		$this->load();
+	public function getIterator()
+	{
+		$this->loadData();
 
 		return new \ArrayIterator($this->items);
 	}
 
 
-	public function getQueryBuilder() {
-		return $this->queryBuilder;
-	}
-
-
 	public function setPage($pageNum, $pageSize) {
 		$this->queryBuilder
-				->setFirstResult(($pageNum-1) * $pageSize)
-				->setMaxResults($pageSize);
+			->setFirstResult(($pageNum-1) * $pageSize)
+			->setMaxResults($pageSize);
 
 		return $this;
 	}

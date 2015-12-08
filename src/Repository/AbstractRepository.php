@@ -2,6 +2,8 @@
 
 namespace Inkl\EntityManager\Repository;
 
+use Inkl\EntityManager\Collection\BaseCollection;
+use Inkl\EntityManager\Collection\CollectionInterface;
 use Inkl\EntityManager\Entity\EntityInterface;
 use Inkl\EntityManager\Factory\FactoryInterface;
 use Doctrine\DBAL\Driver\Connection;
@@ -98,23 +100,12 @@ abstract class AbstractRepository implements RepositoryInterface
 	}
 
 
-	public function loadByField($value, $field)
+	/**
+	 * @return BaseCollection
+     */
+	public function find()
 	{
-
-		$query = $this->connection->createQueryBuilder()
-			->select('*')
-			->from($this->getMainTable())
-			->where($field . '=:' . $field)
-			->setParameter($field, $value);
-
-		$entity = $this->create();
-
-		if ($data = $query->execute()->fetch())
-		{
-			$this->hydrator->hydrate($data, $entity);
-		}
-
-		return $entity;
+		return new BaseCollection($this);
 	}
 
 
